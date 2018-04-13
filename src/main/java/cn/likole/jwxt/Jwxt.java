@@ -180,7 +180,7 @@ public class Jwxt {
         RequestBody formBody = new FormBody.Builder()
                 .add("j_username", username)
                 .add("j_password", password)
-                .add("j_captcha", captcha)
+                .add("j_captcha1", captcha)
                 .build();
         Request request = new Request.Builder()
                 .url(serverAddress + "/j_spring_security_check")
