@@ -127,6 +127,14 @@ public class Jwxt {
         return response.body().byteStream();
     }
 
+    /**
+     * 最新版教务系统更新了验证码逻辑，暂时无法使用
+     * @param url
+     * @param username
+     * @param password
+     * @return
+     * @throws IOException
+     */
     public boolean autoLogin(String url, String username, String password) throws IOException {
 
         //get captcha
