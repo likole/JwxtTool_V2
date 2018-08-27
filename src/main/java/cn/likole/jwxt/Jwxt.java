@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +47,10 @@ public class Jwxt {
      * 基础地址
      */
     private String serverAddress = "http://jwxt.imu.edu.cn";
-    private OkHttpClient okHttpClient = new OkHttpClient.Builder().cookieJar(cookieJar).build();
+    private OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .cookieJar(cookieJar)
+            .proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", 1080)))
+            .build();
     /**
      * 课程方案号
      */
@@ -62,6 +67,14 @@ public class Jwxt {
      * 选课数量
      */
     private String kcNum;
+
+    /**
+     * 调试用
+     * @return
+     */
+    public OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
 
     /**
      * 更改教务系统基础地址
@@ -479,6 +492,31 @@ public class Jwxt {
                 infos.add(key + ":" + valuse.get(i).trim());
         }
         return infos;
+    }
+
+    /**
+     * 获取学籍信息
+     *
+     * @return
+     * @throws IOException
+     */
+    public Map<String,String> getInfoMap() throws IOException {
+        Request request = new Request.Builder()
+                .url(serverAddress + "/student/rollManagement/rollInfo/index")
+                .get()
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+        if (!response.isSuccessful()) return null;
+        Document document = Jsoup.parse(response.body().string());
+        List<String> names = Xsoup.select(document, "//div[@class='col-xs-8']//div[@class='profile-info-name']/text()").list();
+        List<String> valuse = Xsoup.select(document, "//div[@class='col-xs-8']//div[@class='profile-info-value']/text()").list();
+        Map<String,String> map=new HashMap<String, String>();
+        for (int i = 0; i < names.size(); i++) {
+            String key = names.get(i).trim();
+            if (!"".equals(key))
+                map.put(key,valuse.get(i).trim());
+        }
+        return map;
     }
 
     /**
